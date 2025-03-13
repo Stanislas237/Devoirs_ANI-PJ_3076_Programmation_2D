@@ -55,7 +55,9 @@ bool DrawLine(uint32_t* pixels, int width, int height, int x_initial, int y_init
     bool running = true;
     while (running)
     {
-        DrawPixel(pixels, width, height, x_initial, y_initial, color);
+        if (!DrawPixel(pixels, width, height, x_initial, y_initial, color))
+            return false;
+            
         if (x_initial == x_final && y_initial == y_final)
             running = false;
 
