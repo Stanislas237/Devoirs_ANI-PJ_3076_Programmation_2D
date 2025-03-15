@@ -2,17 +2,13 @@
 //#include <SDL3/SDL_main.h>
 #include <iostream>
 #include <stdio.h>
-#include <new>
-#include <string>
+#include <math.h>
+#define M_PI 3.1415927f
 
 static bool updateRendering = true;
 
 uint32_t ToUint32(uint8_t r, uint8_t g, uint8_t b, uint8_t a){
     return r << 24 | g << 16 | b << 8 | a;
-}
-
-int MathAbs(int x){
-    return x < 0 ? -x : x;
 }
 
 bool DrawPixel(uint32_t* pixels, int width, int height, int x, int y, uint32_t pixel){
@@ -22,8 +18,73 @@ bool DrawPixel(uint32_t* pixels, int width, int height, int x, int y, uint32_t p
     return true;
 }
 
+int newX(int x, int y, float xc, float yc, float cos, float sin){
+    return cos * (x - xc) - sin * (y - yc) + xc;
+}
+int newY(int x, int y, float xc, float yc, float cos, float sin){
+    return cos * (y - yc) + sin * (x - xc) + yc;
+}
+
 bool DrawPixel(uint32_t* pixels, int width, int height, int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a){    
     return DrawPixel(pixels, width, height, x, y, ToUint32(r, g, b, a));
+}
+
+bool DrawLine2(uint32_t* pixels, int width, int height, int x0, int y0, int x1, int y1, uint32_t color){
+    if (pixels == NULL)
+        return false;
+    if (x0 < 0 || x0 > width || x1 < 0 || x1 > width || y0 < 0 || y0 > height || y1 < 0 || y1 > height)
+        return false;
+    int ux = x1 - x0;
+    int uy = y1 - y0;
+    float scale = 1.0f / __max(ux, uy);
+    for (float t = 0; t <= 1.0f; t += scale){
+        DrawPixel(pixels, width, height, t * ux + x0, t * uy + y0, color);
+    }
+    return true;
+}
+
+// void DrawRect2(uint32_t* pixels, int width, int height, int x, int y, int r_width, int r_height, uint32_t color, float angle){
+//     if (pixels == NULL) return false;
+//     if (x < 0 || x > width || y < 0 || y > height) return false;
+// }
+
+bool DrawLine(uint32_t* pixels, int width, int height, int xi, int yi, int xf, int yf, uint32_t color){
+    if (pixels == NULL)
+        return false;
+
+    if (xi < 0 || xi > width || xf < 0 || xf > width || yi < 0 || yi > height || yf < 0 || yf > height || (xi == xf && yi == yf))
+        return false;
+
+    int stepX = xi < xf ? 1 : xi > xf ? -1 : 0;
+    int dx = stepX * (xf - xi);
+
+    int stepY = yi < yf ? 1 : yi > yf ? -1 : 0;
+    int dy = stepY * (yf - yi);
+
+    float correction = (dx != 0 && dy != 0) ? static_cast<float>(__max(dx, dy)) / __min(dx, dy) - 1 : 0;
+    float correctionLimit = 0;
+
+    while ((xi != xf || stepX == 0) && (yi != yf || stepY == 0))
+    {
+        if (!DrawPixel(pixels, width, height, xi, yi, color))
+            return false;
+        
+        xi += (dx >= dy || correctionLimit < 1) ? stepX : 0;
+        yi += (dy >= dx || correctionLimit < 1) ? stepY : 0;
+        correctionLimit += correctionLimit < 1 ? correction : -1;
+        // if (correctionLimit >= 1 && dx != dy){
+        //     if (dx > dy)
+        //         xi += stepX;
+        //     else
+        //         yi += stepY;
+        //     correctionLimit--;            
+        //     continue;
+        // }        
+        // xi += stepX;
+        // yi += stepY;
+        // correctionLimit += correction;
+    }
+    return true;
 }
 
 bool DrawRect(uint32_t* pixels, int width, int height, int x, int y, int r_width, int r_height, uint32_t color){
@@ -31,48 +92,71 @@ bool DrawRect(uint32_t* pixels, int width, int height, int x, int y, int r_width
     if (x < 0 || x > width || y < 0 || y > height) return false;
 
     for (int i = 0; i < r_width; i++)
-        for (int j = 0; j < r_height; j++)
-            if (!DrawPixel(pixels, width, height, x + i, y + j, color))
+        for (int j = 0; j < r_height; j++)        
+            if (x + i < 0 || x + i > width || y + j < 0 || y + j > height) return false;
+            else pixels[((y + j) * width) + x + i] = color;
+    return true;
+}
+
+bool DrawRect(uint32_t* pixels, int width, int height, int x, int y, int r_width, int r_height, int angle, uint32_t color){
+    if (pixels == NULL) return false;
+    if (x < 0 || x > width || y < 0 || y > height || angle < 0 || angle > 360) return false;
+
+    float RadAngle = angle * M_PI / 180;
+    float sin = sinf(RadAngle);
+    float cos = cosf(RadAngle);
+    float xc = x + r_width / 2.0f;
+    float yc = y + r_height / 2.0f;
+    
+    // int new_X_Left_Top = x * cos - y * sin;
+    // int new_Y_Left_Top = x * sin + y * cos;
+    // int new_X_Right_Top = (x + r_width) * cos - y * sin;
+    // int new_Y_Right_Top = (x + r_width) * sin + y * cos;
+    // int new_X_Left_Bottom = x * cos - (y + r_height) * sin;
+    // int new_Y_Left_Bottom = x * sin + (y + r_height) * cos;
+    // int new_X_Right_Bottom = (x + r_width) * cos - (y + r_height) * sin;
+    // int new_Y_Right_Bottom = (x + r_width) * sin + (y + r_height) * cos;
+
+    // DrawLine(pixels, width, height, new_X_Left_Top, new_Y_Left_Top, new_X_Right_Top, new_Y_Right_Top, color);
+    // DrawLine(pixels, width, height, new_X_Left_Top, new_Y_Left_Top, new_X_Left_Bottom, new_Y_Left_Bottom, color);
+    // DrawLine(pixels, width, height, new_X_Left_Bottom, new_Y_Left_Bottom, new_X_Right_Bottom, new_Y_Right_Bottom, color);
+    // DrawLine(pixels, width, height, new_X_Right_Bottom, new_Y_Right_Bottom, new_X_Right_Top, new_Y_Right_Top, color);
+    
+    // for (int j = 0; j < r_height; j++){
+    //     int new_X_Left = newX(x, y + j, xc, yc, cos, sin);
+    //     int new_Y_Left = newY(x, y + j, xc, yc, cos, sin);
+    //     int new_X_Right = newX(x + r_width, y + j, xc, yc, cos, sin);
+    //     int new_Y_Right = newY(x + r_width, y + j, xc, yc, cos, sin);
+
+    //     if (!DrawLine(pixels, width, height, new_X_Left, new_Y_Left, new_X_Right, new_Y_Right, color))
+    //         return false;
+    // }
+    for (int i = 0; i < r_width; i++)
+        for (int j = 0; j < r_height; j++){
+            int new_X = newX(x + i, y + j, xc, yc, cos, sin);
+            int new_Y = newY(x + i, y + j, xc, yc, cos, sin);
+            if (!DrawPixel(pixels, width, height, new_X, new_Y, color))
                 return false;
+        }
     return true;
 }
 
-bool DrawLine(uint32_t* pixels, int width, int height, int x_initial, int y_initial, int x_final, int y_final, uint32_t color){
-    if (pixels == NULL)
-        return false;
-
-    if (x_initial < 0 || x_initial > width || x_final < 0 || x_final > width || y_initial < 0 || y_initial > height || y_final < 0 || y_final > height)
-        return false;
-
-    int dx = MathAbs(x_final - x_initial);
-    int dy = MathAbs(y_final - y_initial);
-
-    int stepX = x_initial < x_final ? 1 : -1;
-    int stepY = y_initial < y_final ? 1 : -1;
-
-    int delta = dx - dy;
-
-    bool running = true;
-    while (running)
-    {
-        if (!DrawPixel(pixels, width, height, x_initial, y_initial, color))
-            return false;
-            
-        if (x_initial == x_final && y_initial == y_final)
-            running = false;
-
-        if (2 * delta > -dy){
-            delta -= dy;
-            x_initial += stepX;
-        }
-
-        if (2 * delta < dx){
-            delta += dx;
-            y_initial += stepY;
-        }
-    }
-    return true;
-}
+// bool DrawSkewedRect(uint32_t* pixels, int width, int height, int x, int y, int r_width, int r_height, int angle, uint32_t color){
+//     if (pixels == NULL) return false;
+//     if (x < 0 || x > width || y < 0 || y > height) return false;
+//     float AngleTangent = tanf(angle * M_PI / 180);
+//     for (int i = 0; i < r_width; i++){
+//         int nbPixelsToAddOnY = i * AngleTangent;
+//         for (int j = 0; j < r_height; j++){
+//             int nbPixelsToAddOnX = j * AngleTangent;
+//             int newX = x + i - nbPixelsToAddOnX;
+//             int newY = y + j + nbPixelsToAddOnY;         
+//             if (newX < 0 || newX > width || newY < 0 || newY > height) return false;
+//             else pixels[(newY * width) + newX] = color;
+//         }
+//     }
+//     return true;
+// }
 
 void Clear(uint32_t *pixels, uint32_t width, uint32_t height, uint32_t color){
     for (int i = 0; i < width; i++){
@@ -155,6 +239,8 @@ int main(int argc, char* argv[]) {
     int vx = 0;
     int vy = 0;
     int currSpeed = 1;
+    int angle = 0;
+    int angularSpeed = 0;
 
     SDL_Event event;
     while (!quit) {
@@ -187,6 +273,12 @@ int main(int argc, char* argv[]) {
                     if (currSpeed > 1)
                         currSpeed--;
                 }
+
+                if (event.key.key == SDLK_D){
+                    angularSpeed = 1;                
+                } else if (event.key.key == SDLK_S){
+                    angularSpeed = -1;
+                }
             }
             else if (event.type == SDL_EVENT_KEY_UP){
                 if (event.key.key == SDLK_UP || event.key.key == SDLK_DOWN){
@@ -196,6 +288,10 @@ int main(int argc, char* argv[]) {
                 if (event.key.key == SDLK_LEFT || event.key.key == SDLK_RIGHT){
                     vx = 0;
                 }
+
+                if (event.key.key == SDLK_Q || event.key.key == SDLK_D){
+                    angularSpeed = 0;
+                }
             }
         }
 
@@ -203,6 +299,10 @@ int main(int argc, char* argv[]) {
             x += vx;
         if (y + vy > 50 && y + vy + selfHeight < height - 50)
             y += vy;
+        
+        angle += angularSpeed;
+        if (angle > 360)
+            angle = 0;
 
         Clear(pixels, width, height, 255, 0, 0, 255);
 
@@ -214,7 +314,9 @@ int main(int argc, char* argv[]) {
         for (int i = 0; i <= 10; i++)
             DrawLine(pixels, width, height, 50, i * (height - 100) / 10 + 50, width - 50,  i * (height - 100) / 10 + 50, 0xFFFFFFFF);
 
-        DrawRect(pixels, width, height, x, y, selfWidth, selfHeight, 0x00000000);
+        DrawRect(pixels, width, height, x, y, selfWidth, selfHeight, angle, 0x00000000);
+        // DrawLine(pixels, width, height, 150, 50, 100, 570, 0x00000000);
+        // DrawLine2(pixels, width, height, 150, 50, 100, 570, 0x00000000);
 
         Present(texture, pixels, width);
 
@@ -223,7 +325,7 @@ int main(int argc, char* argv[]) {
 
         if (texture) {
             SDL_RenderTexture(renderer, texture, nullptr, nullptr);
-            //std::cout << "render\n";
+            // std::cout << "render\n";
         }
 
         SDL_RenderPresent(renderer);
