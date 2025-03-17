@@ -276,7 +276,7 @@ int main(int argc, char* argv[]) {
 
                 if (event.key.key == SDLK_D){
                     angularSpeed = 1;                
-                } else if (event.key.key == SDLK_S){
+                } else if (event.key.key == SDLK_Q){
                     angularSpeed = -1;
                 }
             }
@@ -303,6 +303,8 @@ int main(int argc, char* argv[]) {
         angle += angularSpeed;
         if (angle > 360)
             angle = 0;
+        if (angle < 0)
+            angle = 360;
 
         Clear(pixels, width, height, 255, 0, 0, 255);
 
