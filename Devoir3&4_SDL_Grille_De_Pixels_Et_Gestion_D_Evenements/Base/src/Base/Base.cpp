@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     int vy = 0;
     int currSpeed = 1;
     int angularSpeed = 0;    
-            
+
     SDL_Event event;
     while (!quit) {
         while (SDL_PollEvent(&event)) {
@@ -111,22 +111,25 @@ int main(int argc, char* argv[]) {
             screen.DrawLine(50, i * (height - 100) / 10 + 50, width - 50,  i * (height - 100) / 10 + 50, Color::White);
 
         // screen.DrawRect(x, y, selfWidth, selfHeight, angle, Color::Black);
+        // screen.DrawCircle(x, y, selfHeight, Color::Black);
+
         transform.Translate(Vector2f(vx, vy));
         transform.Rotate(angularSpeed, rect[selfWidth * (selfHeight + 1) / 2].position);
-        // transform.Scale(Vector2f(1, 0.5f));
+        // if (vy > 0)
+        //     transform.Scale(Vector2f(1, 0.9f));
+        // if (vy < 0)
+        //     transform.Scale(Vector2f(1, 1.1f));
         
         for (int i = 0; i < 1000; i++){
             rect[i].Apply(transform.matrix);
-
-            if (!screen.DrawPixel(rect[i].position, rect[i].color)){
-                std::cout << "Error: DrawPixel failed" << std::endl;
-                break;
-            }
+            screen.DrawPixel(rect[i].position, rect[i].color);
         }
 
-        // screen.DrawPixel(rect[selfWidth * (selfHeight + 1) / 2].position, rect[selfWidth * (selfHeight + 1) / 2].color);
-        std::cout << rect[selfWidth * (selfHeight + 1) / 2].position.x << " : " << rect[selfWidth * (selfHeight + 1) / 2].position.y << std::endl;
+        // screen.DrawPixel(rect[selfWidth * (selfHeight + 1) / 2].position, Color::Black);
+        // std::cout << rect[selfWidth * (selfHeight + 1) / 2].position.x << " : " << rect[selfWidth * (selfHeight + 1) / 2].position.y << std::endl;
+        
         screen.Present();
+        transform.matrix.Reset();
 
         SDL_RenderPresent(renderer);
     }

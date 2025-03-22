@@ -15,12 +15,5 @@ class Vertex{
 
     void Apply(Mat3f matrix){
         position = matrix * position;        
-        position.x = ClampValue(position.x, 50, 750);
-        position.y = ClampValue(position.y, 50, 550);    
-    }
-
-    private:
-    float ClampValue(float a, float b, float c){
-        return (a < b) ? b : (a > c) ? c : a;
     }
 };

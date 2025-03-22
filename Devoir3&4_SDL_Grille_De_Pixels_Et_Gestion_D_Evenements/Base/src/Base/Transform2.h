@@ -17,7 +17,7 @@ class Transform2{
     }
 
     void Rotate(const T& angle, const Vector2<T>& center){
-        // Translate(-center);
+        Translate(center);
 
         float RadAngle = angle * M_PI / 180;
         float sin = sinf(RadAngle);
@@ -31,7 +31,7 @@ class Transform2{
 
         matrix *= temp;
 
-        // Translate(center);
+        Translate(-center);
     }
 
     void Scale(const Vector2<T>& scale){

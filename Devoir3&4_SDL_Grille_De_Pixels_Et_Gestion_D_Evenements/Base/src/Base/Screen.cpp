@@ -80,7 +80,7 @@ bool Screen::Present() {
 
 bool Screen::DrawPixel(int x, int y, Color color){
     if (pixels == nullptr || texture == nullptr) return false;
-    if (x < 0 || x > width || y < 0 || y > height) return false;
+    if (x < 50 || x > width - 50 || y < 50 || y > height - 50) return false;
 
     pixels[(y * width) + x] = (uint32_t)color;
     return true;
@@ -94,7 +94,8 @@ bool Screen::DrawPixel(Vector2f position, Color color){
 
 bool Screen::DrawLine(int xi, int yi, int xf, int yf, const Color& color){
     if (pixels == nullptr || texture == nullptr) return false;
-    if (xi < 0 || xi > width || xf < 0 || xf > width || yi < 0 || yi > height || yf < 0 || yf > height || (xi == xf && yi == yf)) return false;
+    if (xi == xf && yi == yf) return false;
+    // if (xi < 0 || xi > width || xf < 0 || xf > width || yi < 0 || yi > height || yf < 0 || yf > height || (xi == xf && yi == yf)) return false;
 
     int stepX = xi < xf ? 1 : xi > xf ? -1 : 0;
     int dx = stepX * (xf - xi);
@@ -157,10 +158,10 @@ bool Screen::DrawCircle(int xc, int yc, int ray, const Color& color){
     if (pixels == nullptr || texture == nullptr) return false;
     if (xc < 0 || xc > width || yc < 0 || yc > height) return false;
 
-    for (int i = xc - ray; i < xc + ray; i++)
-        for (int j = yc - ray; j < yc + ray; j++)
+    for (int i = -ray; i <= ray; i++)
+        for (int j = -ray; j <= ray; j++)
             if (i * i + j * j <= ray * ray)
-                if (!DrawPixel(i, j, color))
+                if (!DrawPixel(i + xc, j + yc, color))
                     return false;
     return true;
 }

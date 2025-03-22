@@ -9,6 +9,10 @@ class Mat3{
     T data[3][3];
 
     Mat3(){
+        Reset();
+    }
+
+    void Reset(){
         for (int i = 0; i < 3; i++)
             for (int j = 0; j < 3; j++)
                 data[i][j] = (i == j) ? 1 : 0;
