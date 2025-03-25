@@ -9,6 +9,10 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Custom|x64">
+      <Configuration>Custom</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{60EC827C-4C23-840D-F50F-6A10E125000F}</ProjectGuid>
@@ -29,6 +33,12 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Custom|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -36,6 +46,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Custom|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -50,6 +63,13 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\Build\bin\Release-windows-x86_64\Base\</OutDir>
     <IntDir>..\Build\obj\Release-windows-x86_64\Base\</IntDir>
+    <TargetName>Base</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Custom|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\Build\bin\Custom-windows-x86_64\Base\</OutDir>
+    <IntDir>..\Build\obj\Custom-windows-x86_64\Base\</IntDir>
     <TargetName>Base</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
@@ -98,9 +118,40 @@
       <AdditionalDependencies>msvcrt.lib;SDL3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\External\Libs\SDL3\msvc\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <!-- <Command>IF EXIST $(SolutionDir)\External\Libs\SDL3\msvc\x64\SDL3.dll\ (xcopy /Q /E /Y /I $(SolutionDir)\External\Libs\SDL3\msvc\x64\SDL3.dll $(SolutionDir)\Build\bin\Release-windows-x86_64\$(ProjectName) &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\External\Libs\SDL3\msvc\x64\SDL3.dll $(SolutionDir)\Build\bin\Release-windows-x86_64\$(ProjectName) &gt; nul)</Command> -->
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Custom|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>NKENTSEU_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;..\External\Libs\SDL3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/Wall %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>msvcrt.lib;SDL3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\External\Libs\SDL3\msvc\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Base\Color.h" />
+    <ClInclude Include="src\Base\Mat3.h" />
+    <ClInclude Include="src\Base\Screen.h" />
+    <ClInclude Include="src\Base\Transform2.h" />
+    <ClInclude Include="src\Base\Vector2.h" />
+    <ClInclude Include="src\Base\Vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="src\Base\Base.cpp" />
+    <ClCompile Include="src\Base\Color.cpp" />
+    <ClCompile Include="src\Base\Screen.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

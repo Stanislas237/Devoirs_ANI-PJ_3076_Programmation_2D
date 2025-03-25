@@ -2,11 +2,12 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
+#define M_PI 3.141592f
 
 #include "Vertex.h"
 #include "Transform2.h"
 
-int main(int argc, char* argv[]) {
+int main() {
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
     bool quit = false;
@@ -15,12 +16,12 @@ int main(int argc, char* argv[]) {
     int height = 600;
     std::string title = "SDL3Demo";
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return 1;
     }
 
-    if (SDL_CreateWindowAndRenderer(title.c_str(), width, height, 0, &window, &renderer) < 0) {
+    if (!SDL_CreateWindowAndRenderer(title.c_str(), width, height, 0, &window, &renderer)) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         SDL_Quit();
         return 1;
@@ -37,7 +38,17 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < selfWidth; i++)
         for (int j = 0; j < selfHeight; j++)
             rect[i + j * selfWidth] = Vertex(x + i, y + j, Color::Yellow);
-    
+
+    Vector2i polygon[8];
+    polygon[0] = Vector2i(250, 50);
+    polygon[1] = Vector2i(300, 50);
+    polygon[2] = Vector2i(350, 75);
+    polygon[3] = Vector2i(350, 125);
+    polygon[4] = Vector2i(300, 150);
+    polygon[5] = Vector2i(250, 150);
+    polygon[6] = Vector2i(200, 125);
+    polygon[7] = Vector2i(200, 75);
+
     int vx = 0;
     int vy = 0;
     int currSpeed = 1;
@@ -108,10 +119,14 @@ int main(int argc, char* argv[]) {
             screen.DrawLine(i * (width - 100) / 10 + 50, 50, i * (width - 100) / 10 + 50, height - 50, Color::White);
             
         for (int i = 0; i <= 10; i++)
-            screen.DrawLine(50, i * (height - 100) / 10 + 50, width - 50,  i * (height - 100) / 10 + 50, Color::White);
+            screen.DrawWuLine(50, i * (height - 100) / 10 + 50, width - 50,  i * (height - 100) / 10 + 50, Color::White);
+            
+        screen.DrawWuLine(550, 200, 50,  400, Color::Red);
+        screen.DrawLine(590, 200, 90,  400, Color::Red);
+        screen.DrawWuLine(500, 200, 250,  450, Color::Blue);
+        screen.DrawLine(570, 200, 320,  450, Color::Blue);
 
-        // screen.DrawRect(x, y, selfWidth, selfHeight, angle, Color::Black);
-        // screen.DrawCircle(x, y, selfHeight, Color::Black);
+        screen.FillPolygon(polygon, 8, Color::Black);
 
         transform.Translate(Vector2f(vx, vy));
         transform.Rotate(angularSpeed, rect[selfWidth * (selfHeight + 1) / 2].position);
@@ -124,9 +139,6 @@ int main(int argc, char* argv[]) {
             rect[i].Apply(transform.matrix);
             screen.DrawPixel(rect[i].position, rect[i].color);
         }
-
-        // screen.DrawPixel(rect[selfWidth * (selfHeight + 1) / 2].position, Color::Black);
-        // std::cout << rect[selfWidth * (selfHeight + 1) / 2].position.x << " : " << rect[selfWidth * (selfHeight + 1) / 2].position.y << std::endl;
         
         screen.Present();
         transform.matrix.Reset();

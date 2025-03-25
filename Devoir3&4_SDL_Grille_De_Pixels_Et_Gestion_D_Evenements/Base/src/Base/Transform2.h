@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Mat3.h"
-#define M_PI 3.141592f
 
 template <typename T>
 class Transform2{

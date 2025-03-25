@@ -8,7 +8,8 @@ class Vector2{
     T x;
     T y;
 
-    Vector2(T x, T y) : x(x), y(y){}
+    Vector2() : x(0), y(0){}
+    Vector2(T _x, T _y) : x(_x), y(_y){}
 
     template <typename U>
     bool operator== (const Vector2<U>& other){
