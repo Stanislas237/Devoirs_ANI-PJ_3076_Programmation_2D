@@ -5,6 +5,7 @@
 #include <math.h>
 #include "Vector2.h"
 #include "Color.h"
+#include "Polygon.h"
 
 class Screen {
     private:
@@ -43,8 +44,11 @@ class Screen {
 
         bool DrawCircle(int xc, int yc, int ray, const Color& color);
         
-        bool FillTriangle(Vector2i points[], const Color& color);
+        bool FillTriangle(Vector2i* points, const Color& color);
         
-        bool DrawPolygon(Vector2i points[], int nbPoints, const Color& color);
-        bool FillPolygon(Vector2i points[], int nbPoints, const Color& color);
+        bool DrawPolygon(Vector2i* points, int nbPoints, const Color& color);
+        bool DrawPolygon(const Polygon &p, const Color& color);
+
+        bool FillPolygon(Vector2i* points, int nbPoints, const Color& color);
+        bool FillPolygon(const Polygon &p, const Color& color);
 };

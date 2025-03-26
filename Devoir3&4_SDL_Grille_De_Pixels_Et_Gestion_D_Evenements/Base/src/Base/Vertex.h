@@ -13,7 +13,7 @@ class Vertex{
     Vertex(float x, float y) : position(x, y), color(Color::Black){}
     Vertex(float x, float y, const Color& _color) : position(x, y), color(_color){}
 
-    void Apply(Mat3f matrix){
-        position = matrix * position;        
+    Vector2f Apply(Mat3f matrix){
+        return matrix * position;
     }
 };

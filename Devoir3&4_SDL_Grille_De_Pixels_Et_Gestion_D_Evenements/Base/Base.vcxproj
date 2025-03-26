@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="src\Base\Color.h" />
     <ClInclude Include="src\Base\Mat3.h" />
+    <ClInclude Include="src\Base\Polygon.h" />
     <ClInclude Include="src\Base\Screen.h" />
     <ClInclude Include="src\Base\Transform2.h" />
     <ClInclude Include="src\Base\Vector2.h" />

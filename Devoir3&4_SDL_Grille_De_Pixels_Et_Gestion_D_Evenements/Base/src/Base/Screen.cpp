@@ -220,7 +220,7 @@ bool Screen::DrawCircle(int xc, int yc, int ray, const Color& color){
     return true;
 }
 
-bool Screen::FillTriangle(Vector2i points[], const Color &color)
+bool Screen::FillTriangle(Vector2i* points, const Color &color)
 {
     if (&points[0] == nullptr || &points[1] == nullptr || &points[2] == nullptr)
     return false;
@@ -249,7 +249,7 @@ bool Screen::FillTriangle(Vector2i points[], const Color &color)
     return true;
 }
 
-bool Screen::DrawPolygon(Vector2i points[], int nbPoints, const Color& color){
+bool Screen::DrawPolygon(Vector2i* points, int nbPoints, const Color& color){
     for (int i = 0; i < nbPoints; i++){
         if (&points[i] == nullptr || &points[(i + 1) % nbPoints] == nullptr)
             return false;
@@ -259,10 +259,20 @@ bool Screen::DrawPolygon(Vector2i points[], int nbPoints, const Color& color){
     }
 }
 
-bool Screen::FillPolygon(Vector2i points[], int nbPoints, const Color &color)
+bool Screen::DrawPolygon(const Polygon &p, const Color &color)
+{
+    return DrawPolygon(p.points, p.nbPoints, color);
+}
+
+bool Screen::FillPolygon(Vector2i* points, int nbPoints, const Color &color)
 {
     for (int i = 1; i < nbPoints; i++)
         if (!FillTriangle(new Vector2i[3]{points[0], points[i], points[(i + 1) % nbPoints]}, color))
             return false;
     return true;
+}
+
+bool Screen::FillPolygon(const Polygon &p, const Color &color)
+{
+    return FillPolygon(p.points, p.nbPoints, color);
 }

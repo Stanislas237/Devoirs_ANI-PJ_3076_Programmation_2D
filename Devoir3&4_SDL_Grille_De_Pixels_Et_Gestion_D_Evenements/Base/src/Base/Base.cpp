@@ -6,6 +6,7 @@
 
 #include "Vertex.h"
 #include "Transform2.h"
+#include "Polygon.h"
 
 int main() {
     SDL_Window* window = nullptr;
@@ -34,25 +35,14 @@ int main() {
     int selfHeight = 50;
     int x = width / 2;
     int y = height / 2;
-    Vertex rect[1000];
-    for (int i = 0; i < selfWidth; i++)
-        for (int j = 0; j < selfHeight; j++)
-            rect[i + j * selfWidth] = Vertex(x + i, y + j, Color::Yellow);
 
-    Vector2i polygon[8];
-    polygon[0] = Vector2i(250, 50);
-    polygon[1] = Vector2i(300, 50);
-    polygon[2] = Vector2i(350, 75);
-    polygon[3] = Vector2i(350, 125);
-    polygon[4] = Vector2i(300, 150);
-    polygon[5] = Vector2i(250, 150);
-    polygon[6] = Vector2i(200, 125);
-    polygon[7] = Vector2i(200, 75);
+    Polygon octogone;
+    octogone.AddPoints(Vector2i(350, 120), Vector2i(400, 50), Vector2i(450, 50), Vector2i(500, 120), Vector2i(500, 170), Vector2i(450, 240), Vector2i(400, 240), Vector2i(350, 170));
 
     int vx = 0;
     int vy = 0;
     int currSpeed = 1;
-    int angularSpeed = 0;    
+    int angularSpeed = 0;
 
     SDL_Event event;
     while (!quit) {
@@ -121,24 +111,29 @@ int main() {
         for (int i = 0; i <= 10; i++)
             screen.DrawWuLine(50, i * (height - 100) / 10 + 50, width - 50,  i * (height - 100) / 10 + 50, Color::White);
             
-        screen.DrawWuLine(550, 200, 50,  400, Color::Red);
-        screen.DrawLine(590, 200, 90,  400, Color::Red);
-        screen.DrawWuLine(500, 200, 250,  450, Color::Blue);
-        screen.DrawLine(570, 200, 320,  450, Color::Blue);
-
-        screen.FillPolygon(polygon, 8, Color::Black);
+        // screen.DrawWuLine(550, 200, 50,  400, Color::Red);
+        // screen.DrawLine(590, 200, 90,  400, Color::Red);
+        // screen.DrawWuLine(500, 200, 250,  450, Color::Blue);
+        // screen.DrawLine(570, 200, 320,  450, Color::Blue);
+        // screen.DrawWuLine(450, 200, 450,  450, Color::Yellow);
+        // screen.DrawLine(430, 200, 430,  450, Color::Yellow);
+        // screen.DrawWuLine(400, 200, 650,  450, Color::Cyan);
+        // screen.DrawLine(370, 200, 620,  450, Color::Cyan);
+        // screen.DrawWuLine(350, 200, 750,  400, Color::Magenta);
+        // screen.DrawLine(330, 200, 730,  400, Color::Magenta);
 
         transform.Translate(Vector2f(vx, vy));
-        transform.Rotate(angularSpeed, rect[selfWidth * (selfHeight + 1) / 2].position);
-        // if (vy > 0)
-        //     transform.Scale(Vector2f(1, 0.9f));
-        // if (vy < 0)
-        //     transform.Scale(Vector2f(1, 1.1f));
-        
-        for (int i = 0; i < 1000; i++){
-            rect[i].Apply(transform.matrix);
-            screen.DrawPixel(rect[i].position, rect[i].color);
-        }
+        transform.Rotate(angularSpeed, Vector2f(octogone.MINCorner + octogone.MAXCorner) / 2);
+
+        for (int i = 0; i < octogone.nbPoints; i++)
+            octogone.points[i] = Vertex(octogone.points[i].x, octogone.points[i].y).Apply(transform.matrix);
+
+        octogone.CalculateCenter();
+        screen.DrawPolygon(octogone, Color::Black);
+
+        Vector2f center = (octogone.MINCorner + octogone.MAXCorner) / 2;
+        screen.DrawPixel(center, Color::White);
+        // std::cout << "Center: " << center.x << " " << center.y << std::endl;
         
         screen.Present();
         transform.matrix.Reset();

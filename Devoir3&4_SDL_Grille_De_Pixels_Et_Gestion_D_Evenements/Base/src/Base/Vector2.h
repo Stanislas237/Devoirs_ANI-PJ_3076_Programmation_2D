@@ -10,15 +10,29 @@ class Vector2{
 
     Vector2() : x(0), y(0){}
     Vector2(T _x, T _y) : x(_x), y(_y){}
+    
+    template <typename U>
+    Vector2(const Vector2<U>& vector) : x(vector.x), y(vector.y){}
 
     template <typename U>
     bool operator== (const Vector2<U>& other){
         return x == other.x && y == other.y;
     }
+
+    template <typename U>
+    void operator= (const Vector2<U>& other){
+        x = (T)(other.x);
+        y = (T)(other.y);
+    }
     
     template <typename U>
     Vector2<T> operator+ (const Vector2<U>& other){
         return Vector2<T>(x + other.x, y + other.y);
+    }
+    template <typename U>
+    void operator+= (const Vector2<U>& other){
+       x += other.x;
+       y += other.y;
     }
     
     template <typename U>
@@ -48,10 +62,19 @@ class Vector2{
     Vector2<T> operator/(const U& nbre) const{
         return Vector2<T>(x / nbre, y / nbre);
     }
+    template <typename U>
+    void operator/=(const U& nbre){
+       x /= nbre;
+       y /= nbre;
+    }
 
     template <typename U>
     T det(const Vector2<U>& other){
         return x * other.y - y * other.x;
+    }
+
+    T normsqr() const{
+        return x * x + y * y;
     }
 };
 
