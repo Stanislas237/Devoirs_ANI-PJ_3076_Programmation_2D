@@ -82,29 +82,28 @@ bool Screen::Present() {
     return true;
 }
 
-bool Screen::DrawPixel(int x, int y, Color color){
+bool Screen::DrawPixel(int x, int y, const Color& color){
     if (pixels == nullptr || texture == nullptr) return false;
     if (x < 50 || x > width - 50 || y < 50 || y > height - 50) return false;
 
     pixels[(y * width) + x] = (uint32_t)color;
     return true;
 }
-bool Screen::DrawPixel(Vector2i position, Color color){
+bool Screen::DrawPixel(Vector2i position, const Color& color){
     return DrawPixel(position.x, position.y, color);
 }
-bool Screen::DrawPixel(Vector2f position, Color color){
+bool Screen::DrawPixel(Vector2f position, const Color& color){
     return DrawPixel(position.x, position.y, color);
 }
 
 bool Screen::DrawLine(int xi, int yi, int xf, int yf, const Color& color){
     if (pixels == nullptr || texture == nullptr) return false;
-    if (xi == xf && yi == yf) return false;
 
-    int stepX = xi < xf ? 1 : xi > xf ? -1 : 0;
-    int dx = stepX * (xf - xi);
+    const int stepX = xi < xf ? 1 : xi > xf ? -1 : 0;
+    const int dx = stepX * (xf - xi);
 
-    int stepY = yi < yf ? 1 : yi > yf ? -1 : 0;
-    int dy = stepY * (yf - yi);
+    const int stepY = yi < yf ? 1 : yi > yf ? -1 : 0;
+    const int dy = stepY * (yf - yi);
 
     const int MAX = __max(dx, dy);
     const int MIN = __min(dx, dy);

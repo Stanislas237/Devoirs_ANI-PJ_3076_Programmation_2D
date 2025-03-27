@@ -9,10 +9,6 @@ class Mat3{
     T data[3][3];
 
     Mat3(){
-        Reset();
-    }
-
-    void Reset(){
         for (int i = 0; i < 3; i++)
             for (int j = 0; j < 3; j++)
                 data[i][j] = (i == j) ? 1 : 0;
@@ -68,6 +64,15 @@ class Mat3{
         return temp;
     }
 
+    // Division par un scalaire
+    Mat3<T> operator/ (const T& nbre){
+        Mat3<T> temp;
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                temp.data[i][j] /= nbre;
+        return temp;
+    }
+
     Mat3<T> transpose (){
         Mat3<T> temp;
         for (int i = 0; i < 3; i++)
@@ -99,8 +104,7 @@ class Mat3{
     }
 
     Mat3<T> inverse(){
-        T invDet = 1 / det();
-        return comatrice().transpose() * invDet;
+        return comatrice().transpose() / det();
     }
 };
 

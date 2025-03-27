@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Base\Angle.h" />
     <ClInclude Include="src\Base\Color.h" />
     <ClInclude Include="src\Base\Mat3.h" />
     <ClInclude Include="src\Base\Polygon.h" />

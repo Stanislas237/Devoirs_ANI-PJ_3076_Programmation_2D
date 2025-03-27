@@ -38,11 +38,15 @@ int main() {
 
     Polygon octogone;
     octogone.AddPoints(Vector2i(350, 120), Vector2i(400, 50), Vector2i(450, 50), Vector2i(500, 120), Vector2i(500, 170), Vector2i(450, 240), Vector2i(400, 240), Vector2i(350, 170));
-
+    
+    // Polygon rectangle;
+    // rectangle.AddPoints(Vector2i(250, 250), Vector2i(300, 250), Vector2i(300, 350), Vector2i(250, 350));
+    
     int vx = 0;
     int vy = 0;
     int currSpeed = 1;
     int angularSpeed = 0;
+    float size = 1;
 
     SDL_Event event;
     while (!quit) {
@@ -78,9 +82,11 @@ int main() {
                 }
 
                 if (event.key.key == SDLK_D){
-                    angularSpeed = 1;                
+                    angularSpeed = 1;
+                    size = 1.05f;
                 } else if (event.key.key == SDLK_Q){
                     angularSpeed = -1;
+                    size = 0.95f;
                 }
             }
             else if (event.type == SDL_EVENT_KEY_UP){
@@ -94,6 +100,7 @@ int main() {
 
                 if (event.key.key == SDLK_Q || event.key.key == SDLK_D){
                     angularSpeed = 0;
+                    size = 1;
                 }
             }
         }
@@ -109,34 +116,22 @@ int main() {
             screen.DrawLine(i * (width - 100) / 10 + 50, 50, i * (width - 100) / 10 + 50, height - 50, Color::White);
             
         for (int i = 0; i <= 10; i++)
-            screen.DrawWuLine(50, i * (height - 100) / 10 + 50, width - 50,  i * (height - 100) / 10 + 50, Color::White);
+            screen.DrawLine(50, i * (height - 100) / 10 + 50, width - 50,  i * (height - 100) / 10 + 50, Color::White);
             
-        // screen.DrawWuLine(550, 200, 50,  400, Color::Red);
-        // screen.DrawLine(590, 200, 90,  400, Color::Red);
-        // screen.DrawWuLine(500, 200, 250,  450, Color::Blue);
-        // screen.DrawLine(570, 200, 320,  450, Color::Blue);
-        // screen.DrawWuLine(450, 200, 450,  450, Color::Yellow);
-        // screen.DrawLine(430, 200, 430,  450, Color::Yellow);
-        // screen.DrawWuLine(400, 200, 650,  450, Color::Cyan);
-        // screen.DrawLine(370, 200, 620,  450, Color::Cyan);
-        // screen.DrawWuLine(350, 200, 750,  400, Color::Magenta);
-        // screen.DrawLine(330, 200, 730,  400, Color::Magenta);
-
         transform.Translate(Vector2f(vx, vy));
-        transform.Rotate(angularSpeed, Vector2f(octogone.MINCorner + octogone.MAXCorner) / 2);
+        transform.Rotate(Anglef::Degrees(angularSpeed));
+        // transform.Scale(Vector2f(size, size));
 
+        Polygon temp;
+
+        // for (int i = 0; i < rectangle.nbPoints; i++)
+        //     temp.AddPoint(transform.TransformVector(Vector2f(rectangle.points[i]), Vector2f(rectangle.MINCorner + rectangle.MAXCorner) / 2));
         for (int i = 0; i < octogone.nbPoints; i++)
-            octogone.points[i] = Vertex(octogone.points[i].x, octogone.points[i].y).Apply(transform.matrix);
+            temp.AddPoint(transform.TransformVector(Vector2f(octogone.points[i]), Vector2f(octogone.MINCorner + octogone.MAXCorner) / 2));
 
-        octogone.CalculateCenter();
-        screen.DrawPolygon(octogone, Color::Black);
+        screen.FillPolygon(temp, Color::Black);
 
-        Vector2f center = (octogone.MINCorner + octogone.MAXCorner) / 2;
-        screen.DrawPixel(center, Color::White);
-        // std::cout << "Center: " << center.x << " " << center.y << std::endl;
-        
         screen.Present();
-        transform.matrix.Reset();
 
         SDL_RenderPresent(renderer);
     }

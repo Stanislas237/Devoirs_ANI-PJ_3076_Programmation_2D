@@ -31,9 +31,9 @@ class Screen {
 
         bool Present();
 
-        bool DrawPixel(int x, int y, Color color);
-        bool DrawPixel(Vector2i position, Color color);
-        bool DrawPixel(Vector2f position, Color color);
+        bool DrawPixel(int x, int y, const Color& color);
+        bool DrawPixel(Vector2i position, const Color& color);
+        bool DrawPixel(Vector2f position, const Color& color);
 
         bool DrawLine(int xi, int yi, int xf, int yf, const Color& color);
 

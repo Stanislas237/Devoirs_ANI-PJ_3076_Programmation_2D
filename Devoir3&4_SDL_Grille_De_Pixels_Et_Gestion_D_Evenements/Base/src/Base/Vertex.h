@@ -12,8 +12,6 @@ class Vertex{
     Vertex() : position(0, 0), color(Color::Black){}
     Vertex(float x, float y) : position(x, y), color(Color::Black){}
     Vertex(float x, float y, const Color& _color) : position(x, y), color(_color){}
-
-    Vector2f Apply(Mat3f matrix){
-        return matrix * position;
-    }
+    Vertex(Vector2f position) : position(position), color(Color::Black){}
+    Vertex(Vector2f position, const Color& _color) : position(position), color(_color){}
 };
