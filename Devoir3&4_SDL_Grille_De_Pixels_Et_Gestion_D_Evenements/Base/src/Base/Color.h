@@ -29,6 +29,30 @@ struct Color {
         return Touint32();
     }
 
+    void operator=(const Color& c){
+        r = c.r;
+        g = c.g;
+        b = c.b;
+        a = c.a;
+    }
+
+    Color operator+(const Color& c){
+        return Color(r + c.r, g + c.g, b + c.b, a);
+    }
+    void operator+=(const Color& c){
+        r += c.r;
+        g += c.g;
+        b += c.b;
+    }
+
+    Color operator*(float nbre){
+        return Color(r * nbre, g * nbre, b * nbre, a);
+    }
+
+    Color operator/(float nbre){
+        return Color(r / nbre, g / nbre, b / nbre, a);
+    }
+
     // Predefined colors
     static const Color Black;
     static const Color White;

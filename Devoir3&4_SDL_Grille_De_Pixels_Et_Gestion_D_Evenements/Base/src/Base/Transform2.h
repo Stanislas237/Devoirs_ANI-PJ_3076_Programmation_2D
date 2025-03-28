@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Mat3.h"
+#include "Vertex2.h"
 #include "Angle.h"
+#include "Mat3.h"
 
 template <typename T>
 class Transform2{
@@ -53,7 +54,6 @@ class Transform2{
     }
 
     public:
-
     Vector2<T> GetPosition() const { return position; }
 
     Angle<T> GetRotation() const { return rotation; }
@@ -103,16 +103,16 @@ class Transform2{
         return matrix * vector;
     }
 
-    Vertex TransformVector(const Vertex& v) {
+    Vertex2<T> TransformVector(const Vertex2<T>& v) {
         if (isDirty)
             UpdateMatrix();
-        return Vertex(matrix * v.position, v.color);
+        return Vertex2<T>(matrix * v.position, v.color);
     }
 
-    Vertex TransformVector(const Vertex& v, const Vector2<T>& center) {
+    Vertex2<T> TransformVector(const Vertex2<T>& v, const Vector2<T>& center) {
         if (isDirty)
             UpdateMatrix(center);
-        return Vertex(matrix * v.position, v.color);
+        return Vertex2<T>(matrix * v.position, v.color);
     }
 };
 

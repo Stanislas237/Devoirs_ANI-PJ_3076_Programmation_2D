@@ -1,37 +1,37 @@
 #pragma once
 
-#include "Vector2.h"
+#include "Vertex2.h"
 
-class Polygon{
+class Polygon{    
     public:
-    Vector2i* points;
     int nbPoints;
+    Vertex2i* points = nullptr;
 
     Vector2i MINCorner;
     Vector2i MAXCorner;
 
-    Polygon() : points(new Vector2i[0]), MINCorner(0, 0), MAXCorner(0, 0), nbPoints(0){}
-    Polygon(Vector2i* _points, int _nbPoints) : points(_points), nbPoints(_nbPoints){
+    Polygon() : points(new Vertex2i[0]), MINCorner(0, 0), MAXCorner(0, 0), nbPoints(0){}
+    Polygon(Vertex2i* _points, int _nbPoints) : points(_points), nbPoints(_nbPoints){
         CalculateCenter();
     }
 
     void CalculateCenter(){
         if (nbPoints == 0) return;
 
-        MINCorner = MAXCorner = points[0];
+        MINCorner = MAXCorner = points[0].position;
         
         for (int i = 0; i < nbPoints; i++){
-            if (points[i].x < MINCorner.x) MINCorner.x = points[i].x;
-            if (points[i].y < MINCorner.y) MINCorner.y = points[i].y;
-            if (points[i].x > MAXCorner.x) MAXCorner.x = points[i].x;
-            if (points[i].y > MAXCorner.y) MAXCorner.y = points[i].y;
+            if (points[i].position.x < MINCorner.x) MINCorner.x = points[i].position.x;
+            if (points[i].position.y < MINCorner.y) MINCorner.y = points[i].position.y;
+            if (points[i].position.x > MAXCorner.x) MAXCorner.x = points[i].position.x;
+            if (points[i].position.y > MAXCorner.y) MAXCorner.y = points[i].position.y;
         }
     }
 
-    void AddPoint(Vector2i point, int index, bool unique = true){
+    void AddPoint(Vertex2i point, int index, bool unique = true){
         if (index < 0 || index > nbPoints) return;
 
-        Vector2i* temp = new Vector2i[nbPoints + 1];
+        Vertex2i* temp = new Vertex2i[nbPoints + 1];
         for (int i = 0; i < index; i++)
             temp[i] = points[i];
         temp[index] = point;
@@ -45,7 +45,7 @@ class Polygon{
             CalculateCenter();
     }
 
-    void AddPoint(Vector2i point, bool unique = true){
+    void AddPoint(Vertex2i point, bool unique = true){
         AddPoint(point, nbPoints, unique);
     }
 
@@ -59,7 +59,7 @@ class Polygon{
     void RemovePoint(int index, bool unique = true){
         if (index < 0 || index >= nbPoints) return;
 
-        Vector2i* temp = new Vector2i[nbPoints - 1];
+        Vertex2i* temp = new Vertex2i[nbPoints - 1];
         for (int i = 0; i < index; i++)
             temp[i] = points[i];
         for (int i = index; i < nbPoints - 1; i++)
@@ -77,7 +77,39 @@ class Polygon{
     void RemovePoints(const Args&... args){
         ((RemovePoint(args, false)), ...);
         CalculateCenter();
-    }    
+    }
+
+    bool ContainsPoint(const Vector2i& point){
+        for (int i = 0; i < nbPoints; i++){
+            const int det = (point - points[i].position).det(points[(i + 1) % nbPoints].position - points[i].position);
+            if (det > 0)
+                return false;
+        }
+        return true;
+    }
+
+    Color InterpolateColor(const Vector2i& point, float* distancesPointer){
+        distancesPointer = new float[nbPoints];
+        float TotalFactors = 0.0f;
+
+        for (int i = 0; i < nbPoints; i++){
+            distancesPointer[i] = (points[i].position - point).normsqr();
+    
+            if (distancesPointer[i] == 0)
+                return points[i].color;
+            else
+                distancesPointer[i] = 1000.0f / distancesPointer[i];
+            TotalFactors += distancesPointer[i];
+        }
+        
+        Color result;
+        for (int i = 0; i < nbPoints; i++){
+            float factor = distancesPointer[i] / TotalFactors;
+            result += points[i].color * factor;
+        }
+
+        return result;
+    }
 
     ~Polygon(){
         if (points != nullptr)

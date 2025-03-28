@@ -148,7 +148,7 @@
     <ClInclude Include="src\Base\Screen.h" />
     <ClInclude Include="src\Base\Transform2.h" />
     <ClInclude Include="src\Base\Vector2.h" />
-    <ClInclude Include="src\Base\Vertex.h" />
+    <ClInclude Include="src\Base\Vertex2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Base\Base.cpp" />

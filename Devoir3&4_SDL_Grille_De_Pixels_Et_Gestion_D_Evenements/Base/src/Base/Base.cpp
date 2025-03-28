@@ -2,11 +2,9 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
-#define M_PI 3.141592f
 
-#include "Vertex.h"
+#include "Screen.h"
 #include "Transform2.h"
-#include "Polygon.h"
 
 int main() {
     SDL_Window* window = nullptr;
@@ -37,10 +35,10 @@ int main() {
     int y = height / 2;
 
     Polygon octogone;
-    octogone.AddPoints(Vector2i(350, 120), Vector2i(400, 50), Vector2i(450, 50), Vector2i(500, 120), Vector2i(500, 170), Vector2i(450, 240), Vector2i(400, 240), Vector2i(350, 170));
+    octogone.AddPoints(Vertex2i(350, 120, Color::Cyan), Vertex2i(400, 50, Color::Green), Vertex2i(450, 50, Color::Yellow), Vertex2i(500, 120, Color::Magenta), Vertex2i(500, 170, Color::Blue), Vertex2i(450, 240, Color::Black), Vertex2i(400, 240, Color::White), Vertex2i(350, 170, Color::Magenta));
     
-    // Polygon rectangle;
-    // rectangle.AddPoints(Vector2i(250, 250), Vector2i(300, 250), Vector2i(300, 350), Vector2i(250, 350));
+    Polygon rectangle;
+    rectangle.AddPoints(Vertex2i(50, 50, Color::Green), Vertex2i(width - 50, 50, Color::Green), Vertex2i(width - 50, height - 50, Color::Green), Vertex2i(50, height - 50, Color::Green));
     
     int vx = 0;
     int vy = 0;
@@ -110,7 +108,7 @@ int main() {
 
         screen.Clear(Color(255, 0, 0, 255));
 
-        screen.DrawRect(50, 50, width - 100, height - 100, Color::Green);
+        screen.FillPolygon(rectangle, Color::Green);
         
         for (int i = 0; i <= 10; i++)
             screen.DrawLine(i * (width - 100) / 10 + 50, 50, i * (width - 100) / 10 + 50, height - 50, Color::White);
@@ -120,16 +118,18 @@ int main() {
             
         transform.Translate(Vector2f(vx, vy));
         transform.Rotate(Anglef::Degrees(angularSpeed));
-        // transform.Scale(Vector2f(size, size));
+        // // transform.Scale(Vector2f(size, size));
 
         Polygon temp;
 
         // for (int i = 0; i < rectangle.nbPoints; i++)
-        //     temp.AddPoint(transform.TransformVector(Vector2f(rectangle.points[i]), Vector2f(rectangle.MINCorner + rectangle.MAXCorner) / 2));
-        for (int i = 0; i < octogone.nbPoints; i++)
-            temp.AddPoint(transform.TransformVector(Vector2f(octogone.points[i]), Vector2f(octogone.MINCorner + octogone.MAXCorner) / 2));
+        //     temp.AddPoint(Vertex2i(transform.TransformVector(Vertex2f(rectangle.points[i]), Vector2f(rectangle.MINCorner + rectangle.MAXCorner) / 2)));
+        for (int i = 0; i < octogone.nbPoints; i++){
+            temp.AddPoint(Vertex2i(transform.TransformVector(Vertex2f(octogone.points[i]), Vector2f(octogone.MINCorner + octogone.MAXCorner) / 2)));
+            temp.points[i].color = octogone.points[i].color;
+        }
 
-        screen.FillPolygon(temp, Color::Black);
+        screen.FillPolygon(temp);
 
         screen.Present();
 

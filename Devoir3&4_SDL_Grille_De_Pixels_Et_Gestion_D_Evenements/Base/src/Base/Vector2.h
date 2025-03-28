@@ -36,7 +36,7 @@ class Vector2{
     }
     
     template <typename U>
-    Vector2<T> operator- (const Vector2<U>& other){
+    Vector2<T> operator- (const Vector2<U>& other) const{
         return Vector2<T>(x - other.x, y - other.y);
     }
 
@@ -77,7 +77,6 @@ class Vector2{
         return x * x + y * y;
     }
 };
-
 
 using Vector2f = Vector2<float>;
 using Vector2i = Vector2<int>;

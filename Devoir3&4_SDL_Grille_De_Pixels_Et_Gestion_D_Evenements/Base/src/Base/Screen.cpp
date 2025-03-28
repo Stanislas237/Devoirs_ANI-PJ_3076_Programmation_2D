@@ -1,10 +1,4 @@
 #include "Screen.h"
-#include "Vector2.h"
-
-#define __max(a,b) (((a) > (b)) ? (a) : (b))
-#define __min(a,b) (((a) < (b)) ? (a) : (b))
-
-#define M_PI 3.141592f
 
 Screen::Screen() : width(0), height(0), renderer(nullptr) {
     pixels = nullptr;
@@ -89,10 +83,9 @@ bool Screen::DrawPixel(int x, int y, const Color& color){
     pixels[(y * width) + x] = (uint32_t)color;
     return true;
 }
-bool Screen::DrawPixel(Vector2i position, const Color& color){
-    return DrawPixel(position.x, position.y, color);
-}
-bool Screen::DrawPixel(Vector2f position, const Color& color){
+
+template <typename T>
+bool Screen::DrawPixel(Vector2<T> position, const Color& color){
     return DrawPixel(position.x, position.y, color);
 }
 
@@ -105,8 +98,8 @@ bool Screen::DrawLine(int xi, int yi, int xf, int yf, const Color& color){
     const int stepY = yi < yf ? 1 : yi > yf ? -1 : 0;
     const int dy = stepY * (yf - yi);
 
-    const int MAX = __max(dx, dy);
-    const int MIN = __min(dx, dy);
+    const int MAX = std::max(dx, dy);
+    const int MIN = std::min(dx, dy);
     int error = 0;
 
     while (true)
@@ -170,43 +163,6 @@ bool Screen::DrawWuLine(int x0, int y0, int x1, int y1, const Color& color) {
     }
 }
 
-float newX(int x, int y, float xc, float yc, float cos, float sin){
-    return cos * (x - xc) - sin * (y - yc) + xc;
-}
-float newY(int x, int y, float xc, float yc, float cos, float sin){
-    return cos * (y - yc) + sin * (x - xc) + yc;
-}
-
-bool Screen::DrawRect(int x, int y, int r_width, int r_height, const Color& color){
-    if (pixels == nullptr || texture == nullptr) return false;
-    if (x < 0 || x > width || y < 0 || y > height) return false;
-
-    for (int i = 0; i < r_width; i++)
-        for (int j = 0; j < r_height; j++)        
-            DrawPixel(x + i, y + j, color);
-    return true;
-}
-
-bool Screen::DrawRect(int x, int y, int r_width, int r_height, int angle, const Color& color){
-    if (pixels == nullptr || texture == nullptr) return false;
-    if (x < 0 || x > width || y < 0 || y > height || angle < 0 || angle > 360) return false;
-
-    float RadAngle = angle * M_PI / 180;
-    float sin = sinf(RadAngle);
-    float cos = cosf(RadAngle);
-    float xc = x + r_width / 2.0f;
-    float yc = y + r_height / 2.0f;
-    
-    for (int i = 0; i < r_width; i++)
-        for (int j = 0; j < r_height; j++){
-            float new_X = newX(x + i, y + j, xc, yc, cos, sin);
-            float new_Y = newY(x + i, y + j, xc, yc, cos, sin);
-            if (!DrawPixel(new_X, new_Y, color))
-                return false;
-        }
-    return true;
-}
-
 bool Screen::DrawCircle(int xc, int yc, int ray, const Color& color){
     if (pixels == nullptr || texture == nullptr) return false;
     if (xc < 0 || xc > width || yc < 0 || yc > height) return false;
@@ -219,41 +175,12 @@ bool Screen::DrawCircle(int xc, int yc, int ray, const Color& color){
     return true;
 }
 
-bool Screen::FillTriangle(Vector2i* points, const Color &color)
-{
-    if (&points[0] == nullptr || &points[1] == nullptr || &points[2] == nullptr)
-    return false;
-
-    int minX = __min(points[0].x, __min(points[1].x, points[2].x));
-    int minY = __min(points[0].y, __min(points[1].y, points[2].y));
-    int maxX = __max(points[0].x, __max(points[1].x, points[2].x));
-    int maxY = __max(points[0].y, __max(points[1].y, points[2].y));
-
-    for (int i = minX; i <= maxX; i++)
-        for (int j = minY; j <= maxY; j++)
-        {
-            Vector2i P(i, j);
-            Vector2i A = points[0];
-            Vector2i B = points[1];
-            Vector2i C = points[2];
-
-            int detPAB = (P - A).det(B - A);
-            int detPBC = (P - B).det(C - B);
-            int detPCA = (P - C).det(A - C);
-
-            if (detPAB <= 0 && detPBC <= 0 && detPCA <= 0)
-                if (!DrawPixel(i, j, color))
-                    return false;
-        }
-    return true;
-}
-
-bool Screen::DrawPolygon(Vector2i* points, int nbPoints, const Color& color){
+bool Screen::DrawPolygon(Vertex2i* points, int nbPoints, const Color& color){
     for (int i = 0; i < nbPoints; i++){
         if (&points[i] == nullptr || &points[(i + 1) % nbPoints] == nullptr)
             return false;
 
-        if (!DrawLine(points[i].x, points[i].y, points[(i + 1) % nbPoints].x, points[(i + 1) % nbPoints].y, color))
+        if (!DrawLine(points[i].position.x, points[i].position.y, points[(i + 1) % nbPoints].position.x, points[(i + 1) % nbPoints].position.y, color))
             return false;
     }
 }
@@ -263,15 +190,33 @@ bool Screen::DrawPolygon(const Polygon &p, const Color &color)
     return DrawPolygon(p.points, p.nbPoints, color);
 }
 
-bool Screen::FillPolygon(Vector2i* points, int nbPoints, const Color &color)
+bool Screen::FillPolygon(Polygon &p)
 {
-    for (int i = 1; i < nbPoints; i++)
-        if (!FillTriangle(new Vector2i[3]{points[0], points[i], points[(i + 1) % nbPoints]}, color))
-            return false;
+    float* distancesPointer = nullptr;
+
+    for (int i = p.MINCorner.x; i < p.MAXCorner.x; i++)
+        for (int j = p.MINCorner.y; j < p.MAXCorner.y; j++){
+            Vector2i point(i, j);
+            if (p.ContainsPoint(point)){
+                Color c = p.InterpolateColor(point, distancesPointer);
+                if (!DrawPixel(point, c)){
+                    delete[] distancesPointer;
+                    return false;
+                }
+            }
+        }
+    delete[] distancesPointer;
     return true;
 }
 
-bool Screen::FillPolygon(const Polygon &p, const Color &color)
+bool Screen::FillPolygon(Polygon &p, const Color &color)
 {
-    return FillPolygon(p.points, p.nbPoints, color);
+    for (int i = p.MINCorner.x; i < p.MAXCorner.x; i++)
+        for (int j = p.MINCorner.y; j < p.MAXCorner.y; j++){
+            Vector2i point(i, j);
+            if (p.ContainsPoint(point))
+                if (!DrawPixel(point, color))
+                    return false;
+        }
+    return true;
 }
