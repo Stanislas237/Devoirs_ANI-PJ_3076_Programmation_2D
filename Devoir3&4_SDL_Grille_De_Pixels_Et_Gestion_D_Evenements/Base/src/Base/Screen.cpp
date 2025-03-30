@@ -117,50 +117,48 @@ bool Screen::DrawLine(int xi, int yi, int xf, int yf, const Color& color){
 }
 
 // Fonction pour tracer une ligne avec Xiaolin Wu
-bool Screen::DrawWuLine(int x0, int y0, int x1, int y1, const Color& color) {
-    bool steep = abs(y1 - y0) > abs(x1 - x0);
-    
-    // Si la ligne est raide, on inverse x et y
-    if (steep) {
-        std::swap(x0, y0);
-        std::swap(x1, y1);
-    }
-    
-    // Si x0 > x1, on inverse les points
-    if (x0 > x1) {
-        std::swap(x0, x1);
-        std::swap(y0, y1);
+bool Screen::DrawWuLine(int xi, int yi, int xf, int yf, const Color& color) {
+    if (pixels == nullptr || texture == nullptr) return false;
+
+    int dx = abs(xf - xi);
+    int dy = abs(yf - yi);
+    bool EXCHANGE_SIDES = dy > dx;
+
+    if (EXCHANGE_SIDES) {
+        std::swap(xi, yi);
+        std::swap(xf, yf);
+        std::swap(dx, dy);
     }
 
-    float dx = x1 - x0;
-    float dy = y1 - y0;
-    float gradient = (dx == 0) ? 1 : dy / dx;  // Gestion des divisions par 0
+    int stepX = (xi < xf) ? 1 : -1;
+    float gradient = 0.0f;
 
-    float y = y0 + 0.5f;  // Position y en flottant
+    if (dx == 0 || dx == dy)
+        gradient = 1.0f;
+    else
+        gradient = static_cast<float>(dy) / dx;
 
-    for (int x = x0; x <= x1; x++) {
-        int yPixel = floor(y);  // Partie entière de y
-        
-        float intensityUpper = y - yPixel;  // Intensité du pixel supérieur
-        float intensityLower = 1 - intensityUpper;  // Intensité du pixel inférieur
+    float y = yi;
+    for (int x = xi; x != xf; x += stepX) {
+        float intensity = y - floor(y);
 
-        const Color ColorLower(color.r * intensityLower, color.g * intensityLower, color.b * intensityLower);
-        const Color ColorUpper(color.r * intensityUpper, color.g * intensityUpper, color.b * intensityUpper);
+        Color colorLower = color ^ (1 - intensity);
+        Color colorUpper = color ^ intensity;
 
-        if (steep) {
-            if (!DrawPixel(yPixel, x, ColorLower))
+        if (EXCHANGE_SIDES){
+            if (!DrawPixel(y, x, colorLower))
                 return false;
-            if (!DrawPixel(yPixel + 1, x, ColorUpper))
+            if (!DrawPixel(y + 1, x, colorUpper))
                 return false;
         } else {
-            if (!DrawPixel(x, yPixel, ColorLower))
+            if (!DrawPixel(x, y, colorLower))
                 return false;
-            if (!DrawPixel(x, yPixel + 1, ColorUpper))
+            if (!DrawPixel(x, y + 1, colorUpper))
                 return false;
         }
-
-        y += gradient;  // Incrémenter y selon la pente
+        y += gradient;
     }
+    return true;
 }
 
 bool Screen::DrawCircle(int xc, int yc, int ray, const Color& color){

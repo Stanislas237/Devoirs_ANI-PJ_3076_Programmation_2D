@@ -28,14 +28,9 @@ int main() {
     
     Screen screen(renderer, width, height);
     Transform2f transform;
-    
-    int selfWidth = 20;
-    int selfHeight = 50;
-    int x = width / 2;
-    int y = height / 2;
 
     Polygon octogone;
-    octogone.AddPoints(Vertex2i(350, 120, Color::Cyan), Vertex2i(400, 50, Color::Green), Vertex2i(450, 50, Color::Yellow), Vertex2i(500, 120, Color::Magenta), Vertex2i(500, 170, Color::Blue), Vertex2i(450, 240, Color::Black), Vertex2i(400, 240, Color::White), Vertex2i(350, 170, Color::Magenta));
+    octogone.AddPoints(Vertex2i(350, 120, Color::Cyan), Vertex2i(400, 50, Color::Green), Vertex2i(450, 50, Color::Yellow), Vertex2i(500, 120, Color::Magenta), Vertex2i(500, 170, Color::Blue), Vertex2i(450, 240, Color::Black), Vertex2i(400, 240, Color::White), Vertex2i(350, 170, Color::Red));
     
     Polygon rectangle;
     rectangle.AddPoints(Vertex2i(50, 50, Color::Green), Vertex2i(width - 50, 50, Color::Green), Vertex2i(width - 50, height - 50, Color::Green), Vertex2i(50, height - 50, Color::Green));
@@ -114,11 +109,11 @@ int main() {
             screen.DrawLine(i * (width - 100) / 10 + 50, 50, i * (width - 100) / 10 + 50, height - 50, Color::White);
             
         for (int i = 0; i <= 10; i++)
-            screen.DrawLine(50, i * (height - 100) / 10 + 50, width - 50,  i * (height - 100) / 10 + 50, Color::White);
-            
+            screen.DrawWuLine(50, i * (height - 100) / 10 + 50, width - 50,  i * (height - 100) / 10 + 50, Color::White);
+
         transform.Translate(Vector2f(vx, vy));
         transform.Rotate(Anglef::Degrees(angularSpeed));
-        // // transform.Scale(Vector2f(size, size));
+        // transform.Scale(Vector2f(size, size));
 
         Polygon temp;
 

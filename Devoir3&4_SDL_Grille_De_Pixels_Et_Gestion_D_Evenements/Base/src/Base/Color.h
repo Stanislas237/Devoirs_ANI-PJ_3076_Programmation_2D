@@ -49,6 +49,10 @@ struct Color {
         return Color(r * nbre, g * nbre, b * nbre, a);
     }
 
+    Color operator^(float nbre) const{
+        return Color(r, g, b, a * nbre);
+    }
+
     Color operator/(float nbre){
         return Color(r / nbre, g / nbre, b / nbre, a);
     }
