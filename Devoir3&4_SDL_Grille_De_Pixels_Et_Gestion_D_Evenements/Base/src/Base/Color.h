@@ -33,7 +33,6 @@ struct Color {
         r = c.r;
         g = c.g;
         b = c.b;
-        a = c.a;
     }
 
     Color operator+(const Color& c){
@@ -44,9 +43,14 @@ struct Color {
         g += c.g;
         b += c.b;
     }
-
+    
     Color operator*(float nbre){
         return Color(r * nbre, g * nbre, b * nbre, a);
+    }
+    void operator*=(float nbre){
+        r *= nbre;
+        g *= nbre;
+        b *= nbre;
     }
 
     Color operator^(float nbre) const{

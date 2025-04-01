@@ -103,14 +103,14 @@ int main() {
 
         screen.Clear(Color(255, 0, 0, 255));
 
-        screen.FillPolygon(rectangle, Color::Green);
+        screen.DrawPolygon(rectangle, Color::Green, DrawMode::Fill);
         
         for (int i = 0; i <= 10; i++)
-            screen.DrawLine(i * (width - 100) / 10 + 50, 50, i * (width - 100) / 10 + 50, height - 50, Color::White);
+            screen.DrawWuLine(i * (width - 100) / 10 + 50, 50, i * (width - 100) / 10 + 50, height - 50, Color::White);
             
         for (int i = 0; i <= 10; i++)
             screen.DrawWuLine(50, i * (height - 100) / 10 + 50, width - 50,  i * (height - 100) / 10 + 50, Color::White);
-
+            
         transform.Translate(Vector2f(vx, vy));
         transform.Rotate(Anglef::Degrees(angularSpeed));
         // transform.Scale(Vector2f(size, size));
@@ -124,7 +124,9 @@ int main() {
             temp.points[i].color = octogone.points[i].color;
         }
 
-        screen.FillPolygon(temp);
+        // screen.FillPolygon(temp);
+        screen.DrawPolygon(temp, Color::Black, DrawMode::Triangle_Fan);
+        // screen.DrawPolygon(temp, Color::White, DrawMode::Triangles);
 
         screen.Present();
 

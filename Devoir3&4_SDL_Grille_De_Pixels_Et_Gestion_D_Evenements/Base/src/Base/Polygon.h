@@ -107,7 +107,6 @@ class Polygon{
             float factor = distancesPointer[i] / TotalFactors;
             result += points[i].color * factor;
         }
-
         return result;
     }
 

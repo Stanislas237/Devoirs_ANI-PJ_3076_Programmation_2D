@@ -80,7 +80,15 @@ bool Screen::DrawPixel(int x, int y, const Color& color){
     if (pixels == nullptr || texture == nullptr) return false;
     if (x < 50 || x > width - 50 || y < 50 || y > height - 50) return false;
 
-    pixels[(y * width) + x] = (uint32_t)color;
+    int index = y * width + x;
+    float intensity = color.a / 255.0f;
+    
+    Color c1(color);
+    c1 *= intensity;
+    c1.a = 255;
+    Color c2(pixels[index]);
+    c2 *= (1 - intensity);
+    pixels[index] = (uint32_t)(c1 + c2);
     return true;
 }
 
@@ -91,24 +99,18 @@ bool Screen::DrawPixel(Vector2<T> position, const Color& color){
 
 bool Screen::DrawLine(int xi, int yi, int xf, int yf, const Color& color){
     if (pixels == nullptr || texture == nullptr) return false;
-
     const int stepX = xi < xf ? 1 : xi > xf ? -1 : 0;
     const int dx = stepX * (xf - xi);
-
     const int stepY = yi < yf ? 1 : yi > yf ? -1 : 0;
     const int dy = stepY * (yf - yi);
-
     const int MAX = std::max(dx, dy);
     const int MIN = std::min(dx, dy);
     int error = 0;
-
     while (true)
     {
         if (!DrawPixel(xi, yi, color))
             return false;
-        
         if (xi == xf && yi == yf) break;
-        
         xi += (dx >= dy || error < MIN) ? stepX : 0;
         yi += (dy >= dx || error < MIN) ? stepY : 0;
         error += (error < MIN ? MAX : 0) - MIN;
@@ -120,9 +122,9 @@ bool Screen::DrawLine(int xi, int yi, int xf, int yf, const Color& color){
 bool Screen::DrawWuLine(int xi, int yi, int xf, int yf, const Color& color) {
     if (pixels == nullptr || texture == nullptr) return false;
 
-    int dx = abs(xf - xi);
-    int dy = abs(yf - yi);
-    bool EXCHANGE_SIDES = dy > dx;
+    int dx = xf - xi;
+    int dy = yf - yi;
+    bool EXCHANGE_SIDES = abs(dy) > abs(dx);
 
     if (EXCHANGE_SIDES) {
         std::swap(xi, yi);
@@ -133,7 +135,7 @@ bool Screen::DrawWuLine(int xi, int yi, int xf, int yf, const Color& color) {
     int stepX = (xi < xf) ? 1 : -1;
     float gradient = 0.0f;
 
-    if (dx == 0 || dx == dy)
+    if (dx == 0)
         gradient = 1.0f;
     else
         gradient = static_cast<float>(dy) / dx;
@@ -161,6 +163,16 @@ bool Screen::DrawWuLine(int xi, int yi, int xf, int yf, const Color& color) {
     return true;
 }
 
+template <typename T>
+bool Screen::DrawLine(Vector2<T> start, Vector2<T> end, const Color& color) {
+    return DrawLine(start.x, start.y, end.x, end.y, color);
+}
+
+template <typename T>
+bool Screen::DrawWuLine(Vector2<T> start, Vector2<T> end, const Color& color) {
+    return DrawWuLine(start.x, start.y, end.x, end.y, color);
+}
+
 bool Screen::DrawCircle(int xc, int yc, int ray, const Color& color){
     if (pixels == nullptr || texture == nullptr) return false;
     if (xc < 0 || xc > width || yc < 0 || yc > height) return false;
@@ -173,19 +185,125 @@ bool Screen::DrawCircle(int xc, int yc, int ray, const Color& color){
     return true;
 }
 
-bool Screen::DrawPolygon(Vertex2i* points, int nbPoints, const Color& color){
-    for (int i = 0; i < nbPoints; i++){
-        if (&points[i] == nullptr || &points[(i + 1) % nbPoints] == nullptr)
-            return false;
+    // PRIVATE METHODS
 
-        if (!DrawLine(points[i].position.x, points[i].position.y, points[(i + 1) % nbPoints].position.x, points[(i + 1) % nbPoints].position.y, color))
+bool Screen::DrawPolygonLineStrip(Vertex2i* points, int nbPoints, const Color& color){
+    if (nbPoints < 3)
+        return false;
+    for (int i = 0; i < nbPoints - 1; i++){
+        if (!DrawLine(points[i].position, points[(i + 1) % nbPoints].position, color))
+            return false;
+    }
+    return true;
+}
+
+bool Screen::DrawPolygonLines(Vertex2i* points, int nbPoints, const Color& color){
+    if (nbPoints < 2)
+        return false;
+    for (int i = 0; i < nbPoints; i += 2){
+        if (!DrawLine(points[i].position, points[(i + 1) % nbPoints].position, color))
+            return false;
+    }
+    return true;
+}
+
+bool Screen::DrawPolygonLineLoop(Vertex2i* points, int nbPoints, const Color& color){
+    if (nbPoints < 2)
+        return false;
+    for (int i = 0; i < nbPoints; i++){
+        if (!DrawLine(points[i].position, points[(i + 1) % nbPoints].position, color))
+            return false;
+    }
+    return true;
+}
+
+bool Screen::DrawPolygonPoints(Vertex2i *points, int nbPoints)
+{
+    for (int i = 0; i < nbPoints; i++){
+        if (!DrawPixel(points[i].position, points[i].color))
+            return false;
+    }
+    return true;
+}
+
+bool Screen::FillPolygon(Polygon& p, const Color& color)
+{
+    if (p.nbPoints < 3)
+        return false;
+    for (int i = p.MINCorner.x; i < p.MAXCorner.x; i++)
+        for (int j = p.MINCorner.y; j < p.MAXCorner.y; j++){
+            Vector2i point(i, j);
+            if (p.ContainsPoint(point))
+                if (!DrawPixel(point, color))
+                    return false;
+        }
+    return true;
+}
+
+bool Screen::DrawPolygonTriangles(Vertex2i* points, int nbPoints, const Color& color){
+    if (nbPoints < 3)
+        return false;
+    for (int i = 0; i < nbPoints; i += 3)
+        for (int j = 0; j < 3; j++){
+            int stamp = nbPoints % 3 == 0 ? 0 : 1;
+            if (i + j >= nbPoints - stamp)
+                return false;
+            if (!DrawLine(points[i + j].position, points[i + ((j + 1) % 3)].position, color))
+                return false;
+        }
+    return true;
+}
+
+bool Screen::DrawPolygonTriangleStrip(Vertex2i* points, int nbPoints, const Color& color){
+    if (nbPoints < 3)
+        return false;
+    for (int i = 0; i < nbPoints - 2; i++){
+        if (!DrawLine(points[i].position, points[i + 1].position, color))
+            return false;
+        if (!DrawLine(points[i + 2].position, points[i + 1].position, color))
+            return false;
+        if (!DrawLine(points[i].position, points[i + 2].position, color))
             return false;
     }
 }
 
-bool Screen::DrawPolygon(const Polygon &p, const Color &color)
+bool Screen::DrawPolygonTriangleFan(Vertex2i* points, int nbPoints, const Color& color){
+    if (nbPoints < 3)
+        return false;
+    for (int i = 1; i < nbPoints - 1; i++){
+        if (!DrawLine(points[0].position, points[i + 1].position, color))
+            return false;
+        if (!DrawLine(points[i].position, points[i + 1].position, color))
+            return false;
+        if (!DrawLine(points[i].position, points[0].position, color))
+            return false;
+    }
+}
+
+    // PUBLIC IMPLEMENTATION
+
+bool Screen::DrawPolygon(Polygon &p, const Color& color, DrawMode mode = DrawMode::Lines)
 {
-    return DrawPolygon(p.points, p.nbPoints, color);
+    switch (mode){
+        case DrawMode::Points:
+            return DrawPolygonPoints(p.points, p.nbPoints);
+        case DrawMode::Lines:
+            return DrawPolygonLines(p.points, p.nbPoints, color);
+        case DrawMode::Line_Loop:
+            return DrawPolygonLineLoop(p.points, p.nbPoints, color);
+        case DrawMode::Line_Strip:
+            return DrawPolygonLineStrip(p.points, p.nbPoints, color);
+        case DrawMode::Triangles:
+            return DrawPolygonTriangles(p.points, p.nbPoints, color);
+        case DrawMode::Triangle_Strip:
+            return DrawPolygonTriangleStrip(p.points, p.nbPoints, color);
+        case DrawMode::Triangle_Fan:
+            return DrawPolygonTriangleFan(p.points, p.nbPoints, color);
+        case DrawMode::Fill:
+            return FillPolygon(p, color);
+        default:
+            return false;
+    }
 }
 
 bool Screen::FillPolygon(Polygon &p)
@@ -204,17 +322,5 @@ bool Screen::FillPolygon(Polygon &p)
             }
         }
     delete[] distancesPointer;
-    return true;
-}
-
-bool Screen::FillPolygon(Polygon &p, const Color &color)
-{
-    for (int i = p.MINCorner.x; i < p.MAXCorner.x; i++)
-        for (int j = p.MINCorner.y; j < p.MAXCorner.y; j++){
-            Vector2i point(i, j);
-            if (p.ContainsPoint(point))
-                if (!DrawPixel(point, color))
-                    return false;
-        }
     return true;
 }
