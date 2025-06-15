@@ -1,6 +1,6 @@
 # depslib dependency file v1.0
-1749938277 source:c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\base.cpp
-	<SDL3/SDL.h>
+1749981223 source:c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\base.cpp
+	<SDL3_ttf/SDL_ttf.h>
 	<iostream>
 	"ParticleSystem.h"
 
@@ -483,30 +483,26 @@
 1735863488 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\sdl3\include\sdl3\sdl_oldnames.h
 	<SDL3/SDL_platform_defines.h>
 
-1749938046 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\particlesystem.h
+1749982651 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\particlesystem.h
 	"Particle.h"
 
-1749938119 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\particle.h
+1749969000 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\particle.h
 	<random>
 	"Screen.h"
 	"Polygon.h"
 	"Time.h"
 
-1746540015 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\screen.h
-	<iostream>
-	<SDL3/SDL.h>
-	<math.h>
+1749981148 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\screen.h
 	"Polygon.h"
 
 1749933938 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\polygon.h
 	<vector>
 	"Vector2.h"
 
-1749933999 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\vector2.h
-	<iostream>
+1749974234 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\vector2.h
 	"Color.h"
 
-1749932331 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\color.h
+1749970943 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\color.h
 	<cstdint>
 
 1749937001 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\time.h
@@ -525,4 +521,18 @@
 	<cstdlib>
 	<ctime>
 	<cmath>
+
+1743443646 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\sdl3\sdl_ttf\include\sdl3_ttf\sdl_ttf.h
+	<SDL3/SDL.h>
+	<SDL3/SDL_begin_code.h>
+	<SDL3/SDL_close_code.h>
+
+1749982246 c:\users\stanislas kamga\desktop\cours\programmation 2d\cc\firespark\sdl3\sdl_mixer\include\sdl2\sdl_mixer.h
+	"SDL_stdinc.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_endian.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
 

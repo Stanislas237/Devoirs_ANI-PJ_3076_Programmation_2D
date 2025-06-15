@@ -40,7 +40,7 @@ class ParticleSystem
                     else
                         particles[i].Update(screen, WindIntensity);
         }
-        
+
         // Destructeur de la classe
         ~ParticleSystem(){
             particles.clear();

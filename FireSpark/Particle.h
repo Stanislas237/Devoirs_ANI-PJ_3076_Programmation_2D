@@ -23,10 +23,10 @@ class Particle
             return position.x < 10 || position.x > SCREEN_WIDTH - 10 || position.y > SCREEN_HEIGHT - 10 ||
                 position.y < 10;
         }
-                
+
     public:
         bool isDead = false;
-        
+
         Particle(const Vector2& pos, const Vector2& vel, const Polygon& default_shape) : position(pos), speed(vel), shape(default_shape){}
 
         // Déplacer le polygone, voire le fichier Polygon.h (MIN et MAXCorner pour la gestion des ovales)

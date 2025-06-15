@@ -33,16 +33,16 @@ struct Color {
     }
 
     Color operator+(const Color& c){
-        return Color(r + c.r, g + c.g, b + c.b, a);
+        return Color(r + c.r, g + c.g, b + c.b, 255);
     }
     void operator+=(const Color& c){
         r += c.r;
         g += c.g;
         b += c.b;
     }
-    
-    Color operator*(float nbre){
-        return Color(r * nbre, g * nbre, b * nbre, a);
+
+    Color operator*(float nbre) const{
+        return Color(r * nbre, g * nbre, b * nbre, 255);
     }
 
     void operator*=(float nbre){
@@ -51,12 +51,14 @@ struct Color {
         b *= nbre;
     }
 
-    Color operator^(float nbre) const{
-        return Color(r, g, b, a * nbre);
-    }
+    // Interpoler la couleur en fonction de a
+    void Interpolate(uint32_t& initial_color) const{
+        float alpha = a / 255.0f;
+        Color startColor = Color(initial_color) * (1.0f - alpha);
+        Color endColor = *this * alpha;
 
-    Color operator/(float nbre){
-        return Color(r / nbre, g / nbre, b / nbre, a);
+
+        initial_color = startColor + endColor;
     }
 
     static const Color red;

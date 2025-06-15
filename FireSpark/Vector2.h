@@ -1,7 +1,4 @@
 #pragma once
-
-#include <iostream>
-
 #include "Color.h"
 
 class Vector2{
@@ -25,7 +22,7 @@ class Vector2{
         }
         return *this;
     }
-    
+
     Vector2 operator+ (const Vector2& other){
         return Vector2(x + other.x, y + other.y);
     }
@@ -34,7 +31,7 @@ class Vector2{
        x += other.x;
        y += other.y;
     }
-    
+
     Vector2 operator- (const Vector2& other) const{
         return Vector2(x - other.x, y - other.y);
     }
@@ -46,7 +43,7 @@ class Vector2{
     float operator*(const Vector2& other) const{
         return other.x * x + other.y * y;
     }
-    
+
     Vector2 operator*(const float nbre) const{
         return Vector2(nbre * x, nbre * y);
     }
